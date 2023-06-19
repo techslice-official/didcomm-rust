@@ -187,14 +187,6 @@ impl Message {
             _ => {}
         }
 
-        match (from, &self.from) {
-            (Some(ref from), Some(ref sfrom)) if did_or_url(from).0 != sfrom => Err(err_msg(
-                ErrorKind::IllegalArgument,
-                "`message.from` value is not equal to `from` value's DID",
-            ))?,
-            _ => {}
-        }
-
         Ok(())
     }
 }
@@ -2199,38 +2191,6 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn pack_encrypted_works_from_differs_msg_from() {
-        let did_resolver =
-            ExampleDIDResolver::new(vec![ALICE_DID_DOC.clone(), BOB_DID_DOC.clone()]);
-
-        let secrets_resolver = ExampleSecretsResolver::new(ALICE_SECRETS.clone());
-
-        let mut msg = MESSAGE_SIMPLE.clone();
-        msg.from = CHARLIE_DID.to_string().into();
-        let res = msg
-            .pack_encrypted(
-                BOB_DID,
-                ALICE_DID.into(),
-                None,
-                &did_resolver,
-                &secrets_resolver,
-                &PackEncryptedOptions {
-                    forward: false,
-                    ..PackEncryptedOptions::default()
-                },
-            )
-            .await;
-
-        let err = res.expect_err("res is ok");
-        assert_eq!(err.kind(), ErrorKind::IllegalArgument);
-
-        assert_eq!(
-            format!("{}", err),
-            "Illegal argument: `message.from` value is not equal to `from` value's DID"
-        );
-    }
-
-    #[tokio::test]
     async fn pack_encrypted_works_to_differs_msg_to() {
         let did_resolver =
             ExampleDIDResolver::new(vec![ALICE_DID_DOC.clone(), BOB_DID_DOC.clone()]);
@@ -2416,39 +2376,6 @@ mod tests {
                 },
             )
             .await;
-    }
-
-    #[tokio::test]
-    async fn pack_encrypted_works_from_did_from_msg_did_url() {
-        let did_resolver =
-            ExampleDIDResolver::new(vec![ALICE_DID_DOC.clone(), BOB_DID_DOC.clone()]);
-
-        let secrets_resolver = ExampleSecretsResolver::new(ALICE_SECRETS.clone());
-
-        let mut msg = MESSAGE_SIMPLE.clone();
-        msg.from = "did:example:alice#key-x25519-1".to_string().into();
-
-        let res = msg
-            .pack_encrypted(
-                BOB_DID,
-                ALICE_DID.into(),
-                None,
-                &did_resolver,
-                &secrets_resolver,
-                &PackEncryptedOptions {
-                    forward: false,
-                    ..PackEncryptedOptions::default()
-                },
-            )
-            .await;
-
-        let err = res.expect_err("res is ok");
-        assert_eq!(err.kind(), ErrorKind::IllegalArgument);
-
-        assert_eq!(
-            format!("{}", err),
-            "Illegal argument: `message.from` value is not equal to `from` value's DID"
-        );
     }
 
     #[tokio::test]

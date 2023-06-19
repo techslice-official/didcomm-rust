@@ -135,17 +135,6 @@ test.each([
       "Illegal argument: `sign_from` value is not a valid DID or DID URL",
   },
   {
-    case: "from differs message from",
-    didResolver: new ExampleDIDResolver([ALICE_DID_DOC, BOB_DID_DOC]),
-    secretsResolver: new ExampleSecretsResolver(ALICE_SECRETS),
-    message: MESSAGE_SIMPLE,
-    from: BOB_DID,
-    to: BOB_DID,
-    signBy: ALICE_DID,
-    expError:
-      "Illegal argument: `message.from` value is not equal to `from` value's DID",
-  },
-  {
     case: "to differs message to",
     didResolver: new ExampleDIDResolver([ALICE_DID_DOC, CHARLIE_DID_DOC]),
     secretsResolver: new ExampleSecretsResolver(ALICE_SECRETS),
